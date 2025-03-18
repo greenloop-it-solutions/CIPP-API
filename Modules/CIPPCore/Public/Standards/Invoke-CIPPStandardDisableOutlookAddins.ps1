@@ -13,12 +13,13 @@ function Invoke-CIPPStandardDisableOutlookAddins {
         CAT
             Exchange Standards
         TAG
-            "mediumimpact"
             "CIS"
             "exo_outlookaddins"
         ADDEDCOMPONENT
         IMPACT
             Medium Impact
+        ADDEDDATE
+            2024-02-05
         POWERSHELLEQUIVALENT
             Get-ManagementRoleAssignment \| Remove-ManagementRoleAssignment
         RECOMMENDEDBY
@@ -26,7 +27,7 @@ function Invoke-CIPPStandardDisableOutlookAddins {
         UPDATECOMMENTBLOCK
             Run the Tools\Update-StandardsComments.ps1 script to update this comment block
     .LINK
-        https://docs.cipp.app/user-documentation/tenant/standards/edit-standards
+        https://docs.cipp.app/user-documentation/tenant/standards/list-standards/exchange-standards#medium-impact
     #>
 
     param($Tenant, $Settings)
@@ -70,7 +71,8 @@ function Invoke-CIPPStandardDisableOutlookAddins {
 
     if ($Settings.alert -eq $true) {
         if ($RolesToRemove) {
-            Write-LogMessage -API 'Standards' -tenant $tenant -message 'Users are not disabled from installing Outlook add-ins.' -sev Alert
+            Write-StandardsAlert -message "Users are not disabled from installing Outlook add-ins." -object @{RolesToRemove = $RolesToRemove} -tenant $tenant -standardName 'DisableOutlookAddins' -standardId $Settings.standardId
+            Write-LogMessage -API 'Standards' -tenant $tenant -message 'Users are not disabled from installing Outlook add-ins.' -sev Info
         } else {
             Write-LogMessage -API 'Standards' -tenant $tenant -message 'Users are disabled from installing Outlook add-ins.' -sev Info
         }

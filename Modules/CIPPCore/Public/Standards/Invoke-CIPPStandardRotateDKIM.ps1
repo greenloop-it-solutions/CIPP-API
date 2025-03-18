@@ -13,19 +13,21 @@ function Invoke-CIPPStandardRotateDKIM {
         CAT
             Exchange Standards
         TAG
-            "lowimpact"
             "CIS"
         ADDEDCOMPONENT
         IMPACT
             Low Impact
+        ADDEDDATE
+            2023-03-14
         POWERSHELLEQUIVALENT
             Rotate-DkimSigningConfig
         RECOMMENDEDBY
             "CIS"
+            "CIPP"
         UPDATECOMMENTBLOCK
             Run the Tools\Update-StandardsComments.ps1 script to update this comment block
     .LINK
-        https://docs.cipp.app/user-documentation/tenant/standards/edit-standards
+        https://docs.cipp.app/user-documentation/tenant/standards/list-standards/exchange-standards#low-impact
     #>
 
     param($Tenant, $Settings)
@@ -53,7 +55,8 @@ function Invoke-CIPPStandardRotateDKIM {
 
     if ($Settings.alert -eq $true) {
         if ($DKIM) {
-            Write-LogMessage -API 'Standards' -tenant $tenant -message "DKIM is not rotated for $($DKIM.Identity -join ';')" -sev Alert
+            Write-StandardsAlert -message "DKIM is not rotated for $($DKIM.Identity -join ';')" -object $DKIM -tenant $tenant -standardName 'RotateDKIM' -standardId $Settings.standardId
+            Write-LogMessage -API 'Standards' -tenant $tenant -message "DKIM is not rotated for $($DKIM.Identity -join ';')" -sev Info
         } else {
             Write-LogMessage -API 'Standards' -tenant $tenant -message 'DKIM is rotated for all domains' -sev Info
         }

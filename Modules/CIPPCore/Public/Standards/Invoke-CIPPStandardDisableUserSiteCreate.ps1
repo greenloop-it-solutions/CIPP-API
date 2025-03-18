@@ -13,17 +13,18 @@ function Invoke-CIPPStandardDisableUserSiteCreate {
         CAT
             SharePoint Standards
         TAG
-            "highimpact"
         ADDEDCOMPONENT
         IMPACT
             High Impact
+        ADDEDDATE
+            2022-06-15
         POWERSHELLEQUIVALENT
-            Update-MgAdminSharepointSetting
+            Update-MgAdminSharePointSetting
         RECOMMENDEDBY
         UPDATECOMMENTBLOCK
             Run the Tools\Update-StandardsComments.ps1 script to update this comment block
     .LINK
-        https://docs.cipp.app/user-documentation/tenant/standards/edit-standards
+        https://docs.cipp.app/user-documentation/tenant/standards/list-standards/sharepoint-standards#high-impact
     #>
 
     param($Tenant, $Settings)
@@ -53,7 +54,8 @@ function Invoke-CIPPStandardDisableUserSiteCreate {
         if ($CurrentInfo.isSiteCreationEnabled -eq $false -and $CurrentInfo.isSiteCreationUIEnabled -eq $false) {
             Write-LogMessage -API 'Standards' -tenant $tenant -message 'Standard users are not allowed to create sites and UI setting is disabled' -sev Info
         } else {
-            Write-LogMessage -API 'Standards' -tenant $tenant -message 'Standard users are allowed to create sites or UI setting is enabled' -sev Alert
+            Write-StandardsAlert -message "Standard users are allowed to create sites or UI setting is enabled" -object $CurrentInfo -tenant $tenant -standardName 'DisableUserSiteCreate' -standardId $Settings.standardId
+            Write-LogMessage -API 'Standards' -tenant $tenant -message 'Standard users are allowed to create sites or UI setting is enabled' -sev Info
         }
     }
 

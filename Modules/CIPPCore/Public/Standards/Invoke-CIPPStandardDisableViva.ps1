@@ -13,17 +13,18 @@ function Invoke-CIPPStandardDisableViva {
         CAT
             Exchange Standards
         TAG
-            "lowimpact"
         ADDEDCOMPONENT
         IMPACT
             Low Impact
+        ADDEDDATE
+            2022-05-25
         POWERSHELLEQUIVALENT
             Set-UserBriefingConfig
         RECOMMENDEDBY
         UPDATECOMMENTBLOCK
             Run the Tools\Update-StandardsComments.ps1 script to update this comment block
     .LINK
-        https://docs.cipp.app/user-documentation/tenant/standards/edit-standards
+        https://docs.cipp.app/user-documentation/tenant/standards/list-standards/exchange-standards#low-impact
     #>
 
     param($Tenant, $Settings)
@@ -60,7 +61,8 @@ function Invoke-CIPPStandardDisableViva {
         if ($CurrentSetting.isEnabledInOrganization -eq $false) {
             Write-LogMessage -API 'Standards' -tenant $Tenant -message 'Viva is disabled' -sev Info
         } else {
-            Write-LogMessage -API 'Standards' -tenant $Tenant -message 'Viva is not disabled' -sev Alert
+            Write-StandardsAlert -message "Viva is not disabled" -object $CurrentSetting -tenant $Tenant -standardName 'DisableViva' -standardId $Settings.standardId
+            Write-LogMessage -API 'Standards' -tenant $Tenant -message 'Viva is not disabled' -sev Info
         }
     }
 

@@ -13,17 +13,19 @@ function Invoke-CIPPStandardSendFromAlias {
         CAT
             Exchange Standards
         TAG
-            "mediumimpact"
         ADDEDCOMPONENT
         IMPACT
             Medium Impact
+        ADDEDDATE
+            2022-05-25
         POWERSHELLEQUIVALENT
             Set-Mailbox
         RECOMMENDEDBY
+            "CIPP"
         UPDATECOMMENTBLOCK
             Run the Tools\Update-StandardsComments.ps1 script to update this comment block
     .LINK
-        https://docs.cipp.app/user-documentation/tenant/standards/edit-standards
+        https://docs.cipp.app/user-documentation/tenant/standards/list-standards/exchange-standards#medium-impact
     #>
 
     param($Tenant, $Settings)
@@ -50,7 +52,8 @@ function Invoke-CIPPStandardSendFromAlias {
         if ($CurrentInfo -eq $true) {
             Write-LogMessage -API 'Standards' -tenant $tenant -message 'Send from alias is enabled.' -sev Info
         } else {
-            Write-LogMessage -API 'Standards' -tenant $tenant -message 'Send from alias is not enabled.' -sev Alert
+            Write-StandardsAlert -message "Send from alias is not enabled" -object $CurrentInfo -tenant $tenant -standardName 'SendFromAlias' -standardId $Settings.standardId
+            Write-LogMessage -API 'Standards' -tenant $tenant -message 'Send from alias is not enabled.' -sev Info
         }
     }
 

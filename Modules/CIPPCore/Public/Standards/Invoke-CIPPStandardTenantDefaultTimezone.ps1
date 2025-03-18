@@ -13,18 +13,19 @@ function Invoke-CIPPStandardTenantDefaultTimezone {
         CAT
             SharePoint Standards
         TAG
-            "lowimpact"
         ADDEDCOMPONENT
             {"type":"TimezoneSelect","name":"standards.TenantDefaultTimezone.Timezone","label":"Timezone"}
         IMPACT
             Low Impact
+        ADDEDDATE
+            2024-04-20
         POWERSHELLEQUIVALENT
-            Update-MgBetaAdminSharepointSetting
+            Update-MgBetaAdminSharePointSetting
         RECOMMENDEDBY
         UPDATECOMMENTBLOCK
             Run the Tools\Update-StandardsComments.ps1 script to update this comment block
     .LINK
-        https://docs.cipp.app/user-documentation/tenant/standards/edit-standards
+        https://docs.cipp.app/user-documentation/tenant/standards/list-standards/sharepoint-standards#low-impact
     #>
 
     param($Tenant, $Settings)
@@ -63,7 +64,8 @@ function Invoke-CIPPStandardTenantDefaultTimezone {
         if ($StateIsCorrect -eq $true) {
             Write-LogMessage -API 'Standards' -tenant $tenant -message "Tenant Default Timezone is set to $ExpectedTimezone." -sev Info
         } else {
-            Write-LogMessage -API 'Standards' -tenant $tenant -message 'Tenant Default Timezone is not set to the desired value.' -sev Alert
+            Write-StandardsAlert -message "Tenant Default Timezone is not set to the desired value." -object $CurrentState -tenant $tenant -standardName 'TenantDefaultTimezone' -standardId $Settings.standardId
+            Write-LogMessage -API 'Standards' -tenant $tenant -message 'Tenant Default Timezone is not set to the desired value.' -sev Info
         }
     }
 }
