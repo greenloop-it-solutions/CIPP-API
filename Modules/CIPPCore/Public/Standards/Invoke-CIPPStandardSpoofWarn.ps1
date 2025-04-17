@@ -16,6 +16,7 @@ function Invoke-CIPPStandardSpoofWarn {
             "CIS"
         ADDEDCOMPONENT
             {"type":"autoComplete","multiple":false,"label":"Select value","name":"standards.SpoofWarn.state","options":[{"label":"Enabled","value":"enabled"},{"label":"Disabled","value":"disabled"}]}
+            {"type":"autoComplete","multiple":true,"creatable":true,"required":false,"label":"Enter allowed senders(domain.com, *.domain.com or test@domain.com)","name":"standards.SpoofWarn.AllowListAdd"}
         IMPACT
             Low Impact
         ADDEDDATE
@@ -32,13 +33,8 @@ function Invoke-CIPPStandardSpoofWarn {
     #>
 
     param($Tenant, $Settings)
-    ##$Rerun -Type Standard -Tenant $Tenant -Settings $Settings 'SpoofWarn'
 
     $CurrentInfo = (New-ExoRequest -tenantid $Tenant -cmdlet 'Get-ExternalInOutlook')
-
-    if ($Settings.report -eq $true) {
-        Add-CIPPBPAField -FieldName 'SpoofingWarnings' -FieldValue $CurrentInfo.Enabled -StoreAs bool -Tenant $Tenant
-    }
 
     # Get state value using null-coalescing operator
     $state = $Settings.state.value ?? $Settings.state
@@ -64,15 +60,15 @@ function Invoke-CIPPStandardSpoofWarn {
     # Input validation
     if (([string]::IsNullOrWhiteSpace($state) -or $state -eq 'Select a value') -and ($Settings.remediate -eq $true -or $Settings.alert -eq $true)) {
         Write-LogMessage -API 'Standards' -tenant $Tenant -message 'SpoofWarn: Invalid state parameter set' -sev Error
-        Return
+        return
     }
 
-    If ($Settings.remediate -eq $true) {
+    if ($Settings.remediate -eq $true) {
         Write-Host 'Time to remediate!'
         $status = if ($Settings.enable -and $Settings.disable) {
             # Handle pre standards v2.0 legacy settings when this was 2 separate standards
             Write-LogMessage -API 'Standards' -tenant $Tenant -message 'You cannot both enable and disable the Spoof Warnings setting' -sev Error
-            Return
+            return
         } elseif ($state -eq 'enabled' -or $Settings.enable) { $true } else { $false }
 
         try {
@@ -106,8 +102,19 @@ function Invoke-CIPPStandardSpoofWarn {
         if ($CurrentInfo.Enabled -eq $true) {
             Write-LogMessage -API 'Standards' -tenant $Tenant -message 'Outlook external spoof warnings are enabled.' -sev Info
         } else {
-            Write-StandardsAlert -message "Outlook external spoof warnings are not enabled." -object $CurrentInfo -tenant $Tenant -standardName 'SpoofWarn' -standardId $Settings.standardId
+            Write-StandardsAlert -message 'Outlook external spoof warnings are not enabled.' -object $CurrentInfo -tenant $Tenant -standardName 'SpoofWarn' -standardId $Settings.standardId
             Write-LogMessage -API 'Standards' -tenant $Tenant -message 'Outlook external spoof warnings are not enabled.' -sev Info
         }
+    }
+
+    if ($Settings.report -eq $true) {
+        Add-CIPPBPAField -FieldName 'SpoofingWarnings' -FieldValue $CurrentInfo.Enabled -StoreAs bool -Tenant $Tenant
+
+        if ($AllowListCorrect -eq $true -and $CurrentInfo.Enabled -eq $status) {
+            $FieldValue = $true
+        } else {
+            $FieldValue = $CurrentInfo | Select-Object Enabled, AllowList
+        }
+        Set-CIPPStandardsCompareField -FieldName 'standards.SpoofWarn' -FieldValue $FieldValue -Tenant $Tenant
     }
 }
